@@ -1,0 +1,11 @@
+const createUsers = `CREATE TABLE IF NOT EXISTS users (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Name VARCHAR,
+  Email VARCHAR,
+  Password VARCHAR,
+  Avatar VARCHAR NULL,
+  CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+`
+module.exports = createUsers
