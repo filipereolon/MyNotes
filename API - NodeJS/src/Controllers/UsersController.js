@@ -1,6 +1,8 @@
 const { hash, compare } = require('bcryptjs')
 const AppError = require('../Utils/AppError')
 const sqliteConnection = require('../Database/Sqlite')
+const knex = require('../Database/knex')
+const DiskStorage = require('../Providers/DiskStorage')
 
 class UsersController {
   async create(req, res) {
@@ -42,8 +44,25 @@ class UsersController {
       }
       user.Password = await hash(newPassword, 8)
     }
-    await database.run('UPDATE users SET name = ?, email = ?, password = ?, updatedat = ? WHERE id = ?', [name, email, user.Password, new Date(), user_id])
+    await knex('users').where({ id: user_id }).update({ name, email, password: user.Password, updatedat: new Date()})
     return res.status(201).json({ message: 'Password updated' })
+  }
+
+  async updateAvatar(req, res) {
+    const avatarFilename= req.file.filename
+    const user_id = req.user.id
+    const diskStorage = new DiskStorage()
+    const user = await knex('users').where({ id: user_id }).first()
+    if (!user) {
+      throw new AppError('User not found', 404)
+    }
+    if (user.avatar) {
+      await diskStorage.deleteFile(user.avatar)
+    }
+    const filename = await diskStorage.saveFile(avatarFilename)
+    user.avatar = filename
+    await knex('users').where({ id: user_id }).update({ avatar: filename })
+    return res.status(201).json({ message: 'Avatar updated' })
   }
 }
 
