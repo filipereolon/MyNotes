@@ -16,7 +16,7 @@ class SessionController {
       throw new AppError('Invalid user or email', 401)
     }
 
-    const checkPassword = await compare(password, user.Password)
+    const checkPassword = await compare(password, user.password)
     if (!checkPassword) {
       throw new AppError('Invalid user or email', 401)
     }
@@ -26,7 +26,7 @@ class SessionController {
       subject: String(user.Id),
       expiresIn,
     })
-    return res.json({ user, token})
+    return res.json({ user, token })
   }
 }
 

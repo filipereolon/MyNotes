@@ -45,10 +45,10 @@ export function Profile() {
 
 	async function handleUpdate() {
 		const user = {
-			name,
+      name,
 			email,
 			currentPassword,
-			newPassword,
+			newPassword
 		}
 		await updateProfile({ user, avatarFile })
 	}

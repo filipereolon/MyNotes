@@ -12,7 +12,6 @@ function ensureAuthenticated (req, res, next) {
 
   try {
     const decoded = verify(token, authConfig.jwt.secret)
-    console.log(decoded, 'decoded')
     req.user = {
       id: Number(decoded.sub),
     }

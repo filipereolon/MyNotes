@@ -28,14 +28,14 @@ function AuthProvider({ children }) {
 	async function updateProfile({ user, avatarFile }) {
 		try {
       if (avatarFile) {
-        const data = new FormData()
-        data.append('avatar', avatarFile)
-        const response = await api.patch('/users/avatar', data)
+        const fileUploadForm = new FormData()
+        fileUploadForm.append('avatar', avatarFile)
+        const response = await api.patch('/users/avatar', fileUploadForm)
         user.avatar = response.data.avatar
       }
 			await api.put('/users', user)
 			localStorage.setItem('@my-notes:user', JSON.stringify(user))
-			setData({ ...data, user })
+			setData({ user, token: data.token })
 		} catch (error) {
 			if (error.response) {
 				alert(error.response.data.message)
