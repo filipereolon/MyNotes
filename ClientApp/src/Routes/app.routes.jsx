@@ -3,6 +3,7 @@ import { Home } from '../Pages/Home'
 import { NewNote } from '../Pages/New Note'
 import { Details } from '../Pages/Details'
 import { Profile } from '../Pages/Profile'
+import { NotFound } from '../Pages/NotFound'
 
 export function AppRoutes() {
   return (
@@ -11,6 +12,7 @@ export function AppRoutes() {
       <Route path='/new' element={<NewNote />} />
       <Route path='/details/:id' element={<Details />} />
       <Route path='/profile' element={<Profile />} />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   )
 }

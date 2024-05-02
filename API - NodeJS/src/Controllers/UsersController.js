@@ -24,10 +24,10 @@ class UsersController {
   async update(req, res) {
     const { name, email, newPassword, currentPassword } = req.body
     const user_id = req.user.id
-    console.log(user_id)
     const database = await sqliteConnection()
     
     const user = await database.get('SELECT * FROM users WHERE id = ?', user_id)
+  
     if (!user) {
       throw new AppError('User not found', 404)
     }
@@ -39,13 +39,13 @@ class UsersController {
       throw new AppError('Current password is required', 400)
     }
     if (currentPassword && newPassword) {
-      const checkPassword = await compare(currentPassword, user.Password)
+      const checkPassword = await compare(currentPassword, user.password)
       if (!checkPassword) {
         throw new AppError('Invalid password', 400)
       }
-      user.Password = await hash(newPassword, 8)
+      user.password = await hash(newPassword, 8)
     }
-    await knex('users').where({ id: user_id }).update({ name, email, password: user.Password, updatedat: new Date()})
+    await knex('users').where({ id: user_id }).update({ name, email, password: user.password, updated_at: new Date()})
     return res.status(201).json({ message: 'Password updated' })
   }
 

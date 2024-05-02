@@ -11,7 +11,7 @@ class NotesController {
 		}
 		const [user] = await knex('users').where({ id: user_id })
 		if (!user) {
-			throw new AppError('User not found', 404)
+			throw new AppError('User not found', 400)
 		}
 
 		const [note_id] = await knex('notes').insert({ title, description, user_id })
@@ -37,9 +37,9 @@ class NotesController {
 	}
 
 	async show(req, res) {
+    const id = req.params.id
 		const user_id = req.user.id
-    const { id } = req.params
-    console.log(req.user.id, id)
+    console.log('user_id', user_id)
 		const note = await knex('notes').where({ user_id }).first()
 		const tags = await knex('tags').where({ note_id: id }).orderBy('name')
 		const links = await knex('links').where({ note_id: id }).orderBy('url')
@@ -51,43 +51,24 @@ class NotesController {
 	}
 
 	async delete(req, res) {
-		const id  = req.user.id
+		const id = req.params.id
 		await knex('notes').where({ id }).delete()
 		return res.json()
 	}
 
 	async index(req, res) {
-		const { title, tags } = req.query
-    const user_id = req.user.id
-    let notes
+		const user_id = req.user.id
+		let notes = await knex('notes').where({ user_id }).orderBy('title')
 
-    if (tags) {
-      const filterTags = tags.split(',').map(tag => tag.trim())
-      notes = await knex('notes')
-        .select('notes.*')
-        .join('tags', 'notes.id', 'tags.note_id')
-        .where('notes.user_id', user_id )
-        .whereLike('notes.title', `%${title}%`)
-        .whereIn('tags.name', filterTags)
-        .orderBy('notes.title')
-    }
-    else {
-      notes = await knex('notes')
-        .where({ user_id })
-        .whereLike('title', `%${title}%`)
-        .orderBy('title')
-    }
-
-    const userTags = await knex('tags').where({ user_id })
-    const notesWithTags = notes.map(note => {
-      const noteTags = userTags.filter(tag => tag.note_id === note.id)
-      console.log(noteTags, 'usersTags')
-      return {
-        ...note,
-        tags: noteTags,
-      }
-    })
-		return res.json(notesWithTags)
+		const userTags = await knex('tags').where({ user_id })
+		const notesWithTags = notes.map(note => {
+			const noteTags = userTags.filter(tag => tag.note_id === note.id)
+			return {
+				...note,
+				tags: noteTags,
+			}
+		})
+		return res.status(200).json(notesWithTags)
 	}
 }
 

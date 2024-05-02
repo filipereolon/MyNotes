@@ -3,7 +3,7 @@ import { FiArrowLeft, FiUser, FiMail, FiLock, FiCamera } from 'react-icons/fi'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../hooks/auth'
 import { api } from '../../services/api'
 import avatarPlaceholder from '../../assets/avatar_placeholder.svg'
@@ -44,12 +44,11 @@ export function Profile() {
 	}
 
 	async function handleUpdate() {
-		const user = {
-      name,
-			email,
-			currentPassword,
-			newPassword
-		}
+		user.name = name
+    user.email = email
+    user.currentPassword = currentPassword
+    user.newPassword = newPassword
+    user.avatar = user.avatar ? user.avatar : ''
 		await updateProfile({ user, avatarFile })
 	}
 

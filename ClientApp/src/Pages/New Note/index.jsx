@@ -55,6 +55,15 @@ export function NewNote() {
 		setNewTag('')
 	}
 	const handleNewNote = async () => {
+    if (!title) {
+      return alert('Title is required, please add a title before saving the note')
+    }
+    if(newLink) {
+      return alert('You need to add the link before saving the note')
+    }
+    if (newTag) {
+      return alert('You need to add the tag before saving the note')
+    }
 		await api.post('/notes', {
 			title,
 			description,
@@ -95,7 +104,7 @@ export function NewNote() {
 							value={newLink}
 							onChange={handleChange}
 							onClick={handleAddLink}
-							isNew
+							isnew
 							placeholder='New link'
 						/>
 					</Section>
@@ -113,7 +122,7 @@ export function NewNote() {
 								value={newTag}
 								onChange={handleChange}
 								onClick={handleAddTag}
-								isNew
+								isnew
 								placeholder='New tag'
 							></NoteItem>
 						</div>

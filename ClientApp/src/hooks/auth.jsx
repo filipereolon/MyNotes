@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { api } from '../services/api'
+import { jwtDecode } from 'jwt-decode'
 
 const AuthContext = createContext({})
 
@@ -14,7 +15,7 @@ function AuthProvider({ children }) {
 			localStorage.setItem('@my-notes:user', JSON.stringify(user))
 			localStorage.setItem('@my-notes:token', token)
 
-      api.defaults.headers.Authorization = `Bearer ${token}`
+			api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 			setData({ token, user })
 		} catch (error) {
 			if (error.response) {
@@ -27,15 +28,16 @@ function AuthProvider({ children }) {
 
 	async function updateProfile({ user, avatarFile }) {
 		try {
-      if (avatarFile) {
-        const fileUploadForm = new FormData()
-        fileUploadForm.append('avatar', avatarFile)
-        const response = await api.patch('/users/avatar', fileUploadForm)
-        user.avatar = response.data.avatar
-      }
+			if (avatarFile) {
+				const fileUploadForm = new FormData()
+				fileUploadForm.append('avatar', avatarFile)
+				const response = await api.patch('/users/avatar', fileUploadForm)
+				user.avatar = response.data.avatar
+			}
 			await api.put('/users', user)
 			localStorage.setItem('@my-notes:user', JSON.stringify(user))
 			setData({ user, token: data.token })
+			alert('Profile updated successfully')
 		} catch (error) {
 			if (error.response) {
 				alert(error.response.data.message)
@@ -53,16 +55,24 @@ function AuthProvider({ children }) {
 
 	useEffect(() => {
 		const token = localStorage.getItem('@my-notes:token')
-		const user = localStorage.getItem('@my-notes:user')
-
-		if (token && user) {
-			api.defaults.headers.authorization = `Bearer ${token}`
-			setData({ token, user: JSON.parse(user) })
+		if (token) {
+			const { exp } = jwtDecode(token)
+			if (Date.now() >= exp * 1000) {
+				signOut()
+			} else {
+				const user = localStorage.getItem('@my-notes:user')
+				if (token && user) {
+					api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+					setData({ token, user: JSON.parse(user) })
+				}
+			}
 		}
 	}, [])
 
 	return (
-		<AuthContext.Provider value={{ signIn, updateProfile, signOut, user: data.user }}>{children}</AuthContext.Provider>
+		<AuthContext.Provider value={{ signIn, updateProfile, signOut, user: data.user }}>
+			{children}
+		</AuthContext.Provider>
 	)
 }
 
