@@ -39,7 +39,6 @@ class NotesController {
 	async show(req, res) {
     const id = req.params.id
 		const user_id = req.user.id
-    console.log('user_id', user_id)
 		const note = await knex('notes').where({ user_id }).first()
 		const tags = await knex('tags').where({ note_id: id }).orderBy('name')
 		const links = await knex('links').where({ note_id: id }).orderBy('url')
